@@ -54,7 +54,7 @@ class ChatClient:
         self.header_frame.pack(fill=tk.X)
         
         # Ikon profil pengguna
-        self.profile_image = PhotoImage(file="profile_icon.png")
+        self.profile_image = PhotoImage(file="src/profile_icon.png")
         self.profile_label = Label(self.header_frame, image=self.profile_image, bg="#333333")
         self.profile_label.pack(side=tk.LEFT, padx=10)
 
@@ -162,6 +162,7 @@ class ChatClient:
     # Fungsi untuk beralih antara mode gelap dan terang
     def toggle_mode(self):
         if self.dark_mode:
+            # Beralih ke mode terang
             self.master.configure(bg="#ffffff")
             self.chat_area.configure(bg="#f0f0f0", fg="black")
             self.input_area.configure(bg="#e5e5e5", fg="black")
@@ -171,8 +172,11 @@ class ChatClient:
             self.status_label.configure(bg="#cccccc", fg="black")
             self.profile_label.configure(bg="#cccccc")
             self.send_button.configure(bg="#cccccc", fg="black") 
+            self.chat_area.tag_config("sent", foreground="green", font=("Helvetica", 12, "bold"))
+            self.chat_area.tag_config("received", foreground="black", font=("Helvetica", 12))
             self.dark_mode = False
         else:
+            # Beralih ke mode gelap
             self.master.configure(bg="#222222")
             self.chat_area.configure(bg="#2b2b2b", fg="white")
             self.input_area.configure(bg="#444444", fg="white")
@@ -181,16 +185,38 @@ class ChatClient:
             self.header_frame.configure(bg="#333333")
             self.status_label.configure(bg="#333333", fg="white")
             self.profile_label.configure(bg="#333333")
-            self.send_button.configure(bg="#25D366", fg="white") 
+            self.send_button.configure(bg="#25D366", fg="white")
+            self.chat_area.tag_config("sent", foreground="#25D366", font=("Helvetica", 12, "bold"))
+            self.chat_area.tag_config("received", foreground="white", font=("Helvetica", 12))
             self.dark_mode = True
+
 
     # Fungsi untuk memilih warna tema
     def choose_color(self):
         color = colorchooser.askcolor(title="Choose a color")
-        if color[1]:
+        if color[1]:  # Jika pengguna memilih warna
             self.master.configure(bg=color[1])
-            self.chat_area.configure(bg=color[1], fg="black")
-            self.color_button.configure(bg=color[1], fg="black")
+            self.chat_area.configure(bg=color[1])
+
+            # Deteksi apakah warna terang atau gelap
+            r, g, b = self.master.winfo_rgb(color[1])
+            brightness = (r + g + b) / 3
+
+            if brightness > (65535 / 2):  # Ambang batas untuk warna terang
+                text_color = "black"
+            else:
+                text_color = "white"
+
+            # Setel warna teks berdasarkan warna latar belakang
+            self.chat_area.configure(fg=text_color)
+            self.input_area.configure(fg=text_color)
+            self.switch_mode_button.configure(fg=text_color)
+            self.color_button.configure(fg=text_color)
+            self.status_label.configure(fg=text_color)
+            self.send_button.configure(fg=text_color)
+            self.chat_area.tag_config("sent", foreground="green" if text_color == "black" else "#25D366", font=("Helvetica", 12, "bold"))
+            self.chat_area.tag_config("received", foreground=text_color, font=("Helvetica", 12))
+
 
     # Fungsi untuk mendaftarkan pengguna ke server dengan username dan password
     # Fungsi untuk mendaftarkan pengguna ke server dengan username dan password
